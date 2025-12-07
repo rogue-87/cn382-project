@@ -12,6 +12,9 @@ class Database:
         # if tables exist in the database
         try:
             with sqlite3.connect(self.db_path) as connection:
+                # enable foreign keys
+                connection.execute("PRAGMA foreign_keys = ON")
+
                 # create student table if it doesn't exist
                 connection.execute(
                     """
