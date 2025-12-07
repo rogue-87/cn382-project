@@ -1,0 +1,63 @@
+import sqlite3
+from typing import Optional
+
+
+class Database:
+    db_path: str
+
+    def __init__(self, db_path: Optional[str] = None):
+        self.db_path = db_path or "model/database.db"
+
+        # establish a temporary connection solely for checking
+        # if tables exist in the database
+        try:
+            with sqlite3.connect(self.db_path) as connection:
+                # create student table if it doesn't exist
+                connection.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS student
+                    (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        password TEXT NOT NULL,
+                        email TEXT NOT NULL UNIQUE,
+                        isSuspended BOOLEAN DEFAULT 0
+                    )
+                    """
+                )
+
+                # create book table if it doesn't exist
+                connection.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS book
+                    (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        title TEXT NOT NULL,
+                        author TEXT,
+                        description TEXT,
+                        publishDate DATE
+                    )
+                    """
+                )
+
+                ## create rental table if it doesn't exist
+                connection.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS rental 
+                    (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        student_id INTEGER NOT NULL,
+                        book_id INTEGER NOT NULL,
+                        rental_start DATE NOT NULL,
+                        rental_end DATE NOT NULL,
+                        is_returned BOOLEAN DEFAULT 0,
+                        FOREIGN KEY(student_id) REFERENCES student(id),
+                        FOREIGN KEY(book_id) REFERENCES book(id)
+                    )
+                    """
+                )
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e}")
+
+    def connect(self) -> sqlite3.Connection:
+        return sqlite3.connect(self.db_path)

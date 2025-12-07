@@ -6,6 +6,8 @@ dist/
 wheels/
 *.egg-info
 flask_session
+*.db
+.env
 
 # Virtual environments
 .venv

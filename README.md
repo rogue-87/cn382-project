@@ -45,24 +45,28 @@ through their student account.
 
 ### Student
 
-- Name `string`
-- ID `number` `PK`
-- Email `string`
-- isSuspended `bool`
-
-### Admin
-
-- Name `string`
-- ID `number` `PK`
-- Email `string`
+- id `integer` `PK` `autoincrement`
+- name `string` `not null`
+- password `string` `not null`
+- email `string` `not null` `unique`
+- is_suspended `bool`
 
 ### Book
 
-- Title `string`
-- Author `[]string`
-- Description `string`
-  - PublishDate `Date`
-- RentalPeriod `Date(Start)` `Date(End)` Total rental peroid is 10 (7 + 3)
+- id `integer` `PK`
+- title `string` `not null`
+- author `string`
+- description `string`
+- publish_date `date`
+
+### Rental
+
+- id `integer` `PK`
+- student_id `integer` `not null` `FK -> student(id)`
+- book_id `integer` `not null` `FK -> book(id)`
+- rental_start `date` `not null`
+- rental_end `date` `not null`
+- is_returned `bool` `default 0`
 
 ## Setup
 
