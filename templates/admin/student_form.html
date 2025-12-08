@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{% if student %}Edit Student{% else %}Add New Student{% endif %}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{% if student %}Edit Student{% else %}Add New Student{% endif %}</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form action="{% if student %}{{ url_for('admin_edit_student', student_id=student.id) }}{% else %}{{ url_for('admin_add_student') }}{% endif %}" method="POST">
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ student.name if student else '' }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ student.email if student else '' }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Leave blank to keep current password">
+    </div>
+    <button type="submit" class="btn btn-primary">{% if student %}Update Student{% else %}Add Student{% endif %}</button>
+    <a href="{{ url_for('admin_students') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

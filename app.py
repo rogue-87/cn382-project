@@ -157,9 +157,191 @@ def delete_my_account():
         session.clear()
         flash("Account deleted.", "info")
         return redirect(url_for('home'))
+# --- Admin Routes ---
+load_dotenv()
+ADMIN_NAME = str(os.getenv("ADMIN_NAME"))
+ADMIN_PASSWORD = str(os.getenv("ADMIN_PASSWORD"))
+
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "is_admin" not in session or not session["is_admin"]:
+            flash("Admin access required.", "danger")
+            return redirect(url_for("admin_login"))
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        if username == ADMIN_NAME and password == ADMIN_PASSWORD:
+            session["is_admin"] = True
+            flash("Logged in as Admin!", "success")
+            return render_template("admin/dashboard.html")
+        else:
+            flash("Invalid credentials", "danger")
+    return render_template("admin/login.html")
+
+
+@app.route("/admin/logout")
+@admin_required
+def admin_logout():
+    session.pop("is_admin", None)
+    flash("Logged out as Admin.", "info")
+    return redirect(url_for("admin_login"))
+
+
+@app.route("/admin/dashboard")
+@admin_required
+def admin_dashboard():
+    return render_template("admin/dashboard.html")
+
+
+# --- Admin Book Management Routes ---
+@app.route("/admin/books")
+@admin_required
+def admin_books():
+    books = admin_model.get_all_books()
+    return render_template(
+        "admin/book_list.html", books=books
+    )  # Changed template to book_list.html
+
+
+@app.route("/admin/books/add", methods=["GET", "POST"])
+@admin_required
+def admin_add_book():
+    if request.method == "POST":
+        title = request.form.get("title")
+        author = request.form.get("author")
+        isbn = request.form.get("isbn")
+        quantity = int(request.form.get("quantity"))
+
+        result = admin_model.add_book(title, author, isbn, quantity)
+        if result["status"]:
+            flash("Book added successfully!", "success")
+            return redirect(url_for("admin_books"))
+        else:
+            flash(result["message"], "danger")
+
+    return render_template("admin/book_form.html", book=None)
+
+
+@app.route("/admin/books/edit/<int:book_id>", methods=["GET", "POST"])
+@admin_required
+def admin_edit_book(book_id):
+    book = admin_model.get_book_by_id(book_id)
+    if not book:
+        flash("Book not found.", "danger")
+        return redirect(url_for("admin_books"))
+
+    if request.method == "POST":
+        title = request.form.get("title")
+        author = request.form.get("author")
+        isbn = request.form.get("isbn")
+        quantity = int(request.form.get("quantity"))
+
+        result = admin_model.update_book(book_id, title, author, isbn, quantity)
+        if result["status"]:
+            flash("Book updated successfully!", "success")
+            return redirect(url_for("admin_books"))
+        else:
+            flash(result["message"], "danger")
+
+    return render_template("admin/book_form.html", book=book)
+
+
+@app.route("/admin/books/delete/<int:book_id>", methods=["POST"])
+@admin_required
+def admin_delete_book(book_id):
+    result = admin_model.delete_book(book_id)
+    if result["status"]:
+        flash("Book deleted successfully!", "success")
     else:
-        flash(result['message'], "danger")
-        return redirect(url_for('student_components/student_dashboard'))
+        flash(result["message"], "danger")
+    return redirect(url_for("admin_books"))
+
+
+# --- Admin Student Management Routes ---
+@app.route("/admin/students")
+@admin_required
+def admin_students():
+    query = request.args.get("q", "")
+    sort_by = request.args.get("sort_by", "id")
+    sort_order = request.args.get("sort_order", "ASC")
+    students = admin_model.search_students(query, sort_by, sort_order)
+    return render_template("admin/student_list.html", students=students)
+
+
+@app.route("/admin/students/edit/<int:student_id>", methods=["GET", "POST"])
+@admin_required
+def admin_edit_student(student_id):
+    student = admin_model.get_student_by_id(student_id)
+    if not student:
+        flash("Student not found.", "danger")
+        return redirect(url_for("admin_students"))
+
+    if request.method == "POST":
+        name = request.form.get("name")
+        email = request.form.get("email")
+        password = request.form.get("password")
+        result = admin_model.update_student(student_id, name, password)
+        if result["status"]:
+            flash("Student updated successfully!", "success")
+            return redirect(url_for("admin_students"))
+        else:
+            flash(result["message"], "danger")
+
+    return render_template("admin/student_form.html", student=student)
+
+
+@app.route("/admin/students/suspend/<int:student_id>", methods=["POST"])
+@admin_required
+def admin_suspend_student(student_id):
+    suspend = request.form.get("suspend") == "1"
+    result = admin_model.update_student_suspension(student_id, suspend)
+    if result["status"]:
+        status = "suspended" if suspend else "unsuspended"
+        flash(f"Student {status} successfully!", "success")
+    else:
+        flash(result["message"], "danger")
+    return redirect(url_for("admin_students"))
+
+
+@app.route("/admin/students/delete/<int:student_id>", methods=["POST"])
+@admin_required
+def admin_delete_student(student_id):
+    result = admin_model.delete_student(student_id)
+    if result["status"]:
+        flash("Student deleted successfully!", "success")
+    else:
+        flash(result["message"], "danger")
+    return redirect(url_for("admin_students"))
+
+
+# --- Admin Rental Management Routes ---
+@app.route("/admin/rentals")
+@admin_required
+def admin_rentals():
+    rentals = admin_model.get_all_rentals()
+    return render_template("admin/rental_list.html", rentals=rentals)
+
+
+@app.route("/admin/rentals/return/<int:rental_id>", methods=["POST"])
+@admin_required
+def admin_return_book(rental_id):
+    result = admin_model.return_book(rental_id)
+    if result["status"]:
+        flash("Book returned successfully!", "success")
+    else:
+        flash(result["message"], "danger")
+    return redirect(url_for("admin_rentals"))
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
