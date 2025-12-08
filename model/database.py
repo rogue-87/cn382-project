@@ -38,7 +38,9 @@ class Database:
                         title TEXT NOT NULL,
                         author TEXT,
                         description TEXT,
-                        publishDate DATE
+                        publishDate DATE,
+                        isbn TEXT,
+                        quantity INTEGER DEFAULT 1
                     )
                     """
                 )
@@ -46,7 +48,7 @@ class Database:
                 ## create rental table if it doesn't exist
                 connection.execute(
                     """
-                    CREATE TABLE IF NOT EXISTS rental 
+                    CREATE TABLE IF NOT EXISTS rental
                     (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         student_id INTEGER NOT NULL,
@@ -56,6 +58,20 @@ class Database:
                         is_returned BOOLEAN DEFAULT 0,
                         FOREIGN KEY(student_id) REFERENCES student(id),
                         FOREIGN KEY(book_id) REFERENCES book(id)
+                    )
+                    """
+                )
+
+                # create notification table if it doesn't exist
+                connection.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS notification
+                    (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        message TEXT NOT NULL,
+                        user_id INTEGER,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY(user_id) REFERENCES student(id)
                     )
                     """
                 )

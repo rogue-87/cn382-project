@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Manage Rentals{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Manage Rentals</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+{% if rentals %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Student</th>
+                <th>Book</th>
+                <th>Rental Start</th>
+                <th>Rental End</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rental in rentals %}
+            <tr>
+                <td>{{ rental.id }}</td>
+                <td>{{ rental.student_name }}</td>
+                <td>{{ rental.book_title }}</td>
+                <td>{{ rental.rental_start }}</td>
+                <td>{{ rental.rental_end }}</td>
+                <td>
+                    {% if rental.is_returned %}
+                        <span class="badge bg-success">Returned</span>
+                    {% else %}
+                        <span class="badge bg-warning">Active</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not rental.is_returned %}
+                        <form action="{{ url_for('admin_return_book', rental_id=rental.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Mark this book as returned?');">Return Book</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No rentals found.</p>
+{% endif %}
+
+<a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+{% endblock %}

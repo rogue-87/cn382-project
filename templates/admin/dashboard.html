@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Admin Dashboard</h1>
+<p>Welcome, Admin!</p>
+
+<div class="list-group">
+    <a href="{{ url_for('admin_books') }}" class="list-group-item list-group-item-action">Manage Books</a>
+    <a href="{{ url_for('admin_students') }}" class="list-group-item list-group-item-action">Manage Students</a>
+    <a href="{{ url_for('admin_rentals') }}" class="list-group-item list-group-item-action">Manage Rentals</a>
+</div>
+
+<a href="{{ url_for('admin_logout') }}" class="btn btn-danger mt-3">Logout</a>
+{% endblock %}

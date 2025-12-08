@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{% if book %}Edit Book{% else %}Add New Book{% endif %}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{% if book %}Edit Book{% else %}Add New Book{% endif %}</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form action="{% if book %}{{ url_for('admin_edit_book', book_id=book.id) }}{% else %}{{ url_for('admin_add_book') }}{% endif %}" method="POST">
+    <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" class="form-control" id="title" name="title" value="{{ book.title if book else '' }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="author" class="form-label">Author</label>
+        <input type="text" class="form-control" id="author" name="author" value="{{ book.author if book else '' }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="isbn" class="form-label">ISBN</label>
+        <input type="text" class="form-control" id="isbn" name="isbn" value="{{ book.isbn if book else '' }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="quantity" class="form-label">Quantity</label>
+        <input type="number" class="form-control" id="quantity" name="quantity" value="{{ book.quantity if book else '' }}" min="0" required>
+    </div>
+    <button type="submit" class="btn btn-primary">{% if book %}Update Book{% else %}Add Book{% endif %}</button>
+    <a href="{{ url_for('admin_books') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

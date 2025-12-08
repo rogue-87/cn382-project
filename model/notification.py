@@ -1,26 +1,25 @@
 import sqlite3
-from typing import Dict, Any, List
+from typing import List
 from datetime import datetime, timedelta
-from model.database import Database
 
 class Notification:
-    def check_notifications(self, conn: sqlite3.Connection, student_id: int) -> List[str]:
+    def check_notifications(self, connection: sqlite3.Connection, student_id: int) -> List[str]:
             """
             Checks for rental warnings and updates suspension status if overdue.
             Returns a list of notification messages.
             """
             notifications = []
             try:
-                cur = conn.cursor()
+                cursor = connection.cursor()
                 
                 # Get active rentals for student
-                cur.execute("""
+                cursor.execute("""
                     SELECT r.id, r.rental_end, b.title 
                     FROM rental r
                     JOIN book b ON r.book_id = b.id
                     WHERE r.student_id = ? AND r.is_returned = 0
                 """, (student_id,))
-                rentals = cur.fetchall()
+                rentals = cursor.fetchall()
                 
                 today = datetime.now().date()
                 should_suspend = False
@@ -45,8 +44,8 @@ class Notification:
                         notifications.append(f"WARNING: Book '{book_title}' is due in {days_left} days ({rental_end_date}).")
                         
                 if should_suspend:
-                    cur.execute("UPDATE student SET isSuspended = 1 WHERE id = ?", (student_id,))
-                    conn.commit()
+                    cursor.execute("UPDATE student SET isSuspended = 1 WHERE id = ?", (student_id,))
+                    connection.commit()
                     
                 return notifications
 
