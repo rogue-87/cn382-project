@@ -1,16 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Home</title>
+{% block content %}
+<div class="row align-items-center py-5">
+	<div class="col-lg-6">
+		<h1 class="display-3 fw-bold mb-4 text-dark">
+			Discover Your Next <span class="text-primary">Great Read</span>
+		</h1>
+		<p class="lead text-muted mb-4">
+			Access thousands of academic resources, research papers, and novels.
+			Manage your rentals efficiently with our smart library system.
+		</p>
+		{% if not session.get('user_id') %}
+		<div class="d-grid gap-3 d-sm-flex">
+			<a href="{{ url_for('student_register') }}" class="btn btn-primary btn-lg px-4 gap-3">Register Now</a>
+			<a href="{{ url_for('student_login') }}" class="btn btn-outline-secondary btn-lg px-4">Student Login</a>
+		</div>
+		{% else %}
+		<div class="d-grid gap-3 d-sm-flex">
+			<a href="{{ url_for('student_books') }}" class="btn btn-primary btn-lg px-4 gap-3">
+				<i class="fas fa-search me-2"></i>Find Books
+			</a>
+			<a href="{{ url_for('student_dashboard') }}" class="btn btn-light btn-lg px-4 border">
+				Go to Dashboard
+			</a>
+		</div>
+		{% endif %}
+	</div>
+	<div class="col-lg-6 mt-5 mt-lg-0 text-center text-primary opacity-25">
+		<i class="fas fa-book-open display-1" style="font-size: 15rem;"></i>
+	</div>
+</div>
 
-	{% include 'utils/imports.html' %}
-</head>
-
-<body>
-	<h1>Home</h1>
-</body>
-
-</html>
+<div class="row mt-5 pt-5 g-4">
+	<div class="col-md-4">
+		<div class="card h-100 p-4 text-center border-0 shadow-sm">
+			<div class="mb-3 text-primary">
+				<i class="fas fa-search fa-3x"></i>
+			</div>
+			<h4 class="fw-bold">Smart Search</h4>
+			<p class="text-muted">Instantly find available books by title or author with real-time availability
+				checking.</p>
+		</div>
+	</div>
+	<div class="col-md-4">
+		<div class="card h-100 p-4 text-center border-0 shadow-sm">
+			<div class="mb-3 text-success">
+				<i class="fas fa-clock fa-3x"></i>
+			</div>
+			<h4 class="fw-bold">Instant Rentals</h4>
+			<p class="text-muted">Rent books with a single click. We handle the due dates so you can focus on reading.
+			</p>
+		</div>
+	</div>
+	<div class="col-md-4">
+		<div class="card h-100 p-4 text-center border-0 shadow-sm">
+			<div class="mb-3 text-warning">
+				<i class="fas fa-bell fa-3x"></i>
+			</div>
+			<h4 class="fw-bold">Smart Notifications</h4>
+			<p class="text-muted">Get timely reminders before your due date. Avoid suspensions with our alert system.
+			</p>
+		</div>
+	</div>
+</div>
+{% endblock %}

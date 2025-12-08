@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="mb-5 text-center">
+    <h1 class="fw-bold mb-3">Library Catalog</h1>
+    <p class="text-muted">Browse our collection of academic resources and literature.</p>
+</div>
+
+<div class="row justify-content-center mb-5">
+    <div class="col-lg-8">
+        <div class="card p-3 shadow-sm border-0 rounded-4">
+            <form action="{{ url_for('student_books') }}" method="GET">
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text bg-white border-0 text-primary">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="search" class="form-control border-0 bg-transparent"
+                        placeholder="Search by book title or author..." name="q" value="{{ search_query }}">
+                    <button class="btn btn-primary px-4 rounded-3" type="submit">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4" id="book-list">
+    {% if books %}
+    {% for book in books %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm rounded">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="badge bg-primary-subtle text-primary rounded-pill px-3">Available</span>
+                    <small class="text-muted text-uppercase fw-bold small">Book ID: {{ book.id }}</small>
+                </div>
+
+                <h5 class="card-title fw-bold mb-1">{{ book.title }}</h5>
+                <h6 class="card-subtitle mb-3 text-secondary">{{ book.author }}</h6>
+
+                <p class="card-text text-muted small mb-4 text-truncate">
+                    {{ book.description or "No description available for this book." }}
+                </p>
+            </div>
+            <div class="card-footer bg-white p-3 border-top-0 pt-0 rounded-bottom">
+                <button
+                    class="btn btn-outline-primary w-100 rent-btn d-flex align-items-center justify-content-center rounded-pill"
+                    data-id="{{ book.id }}">
+                    <i class="fas fa-plus-circle me-2"></i> Rent Now
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12 text-center py-5">
+        <div class="mb-3">
+            <i class="fas fa-search-minus fa-3x text-muted opacity-50"></i>
+        </div>
+        <h5 class="text-muted">No books found</h5>
+        <p class="text-secondary small">Try adjusting your search terms or verify the book is currently available.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        $('.rent-btn').click(function () {
+            var btn = $(this);
+            var bookId = btn.data('id');
+            var originalText = btn.html();
+
+            // Show loading state
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i> Processing...');
+
+            $.ajax({
+                url: '/student/rent/' + bookId,
+                type: 'POST',
+                success: function (response) {
+                    if (response.status) {
+                        // Success UI update
+                        btn.removeClass('btn-outline-primary').addClass('btn-success')
+                            .html('<i class="fas fa-check me-2"></i> Rented!');
+
+                        // Show styled toast or alert
+                        var alertHtml = `
+                        <div class="alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-4 shadow" style="z-index: 1050; min-width: 300px;">
+                            <i class="fas fa-check-circle me-2"></i> ${response.message} <br>
+                            <small class="ms-4">Due Date: ${response.due_date}</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                        $('body').append(alertHtml);
+
+                        // Fade out the book card or reload
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1500);
+
+                    } else {
+                        // Fail UI update
+                        btn.prop('disabled', false).html(originalText);
+
+                        var alertHtml = `
+                        <div class="alert alert-danger alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-4 shadow" style="z-index: 1050; min-width: 300px;">
+                            <i class="fas fa-exclamation-circle me-2"></i> ${response.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                        $('body').append(alertHtml);
+                    }
+                },
+                error: function () {
+                    btn.prop('disabled', false).html(originalText);
+                    alert("Communication error with server.");
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
