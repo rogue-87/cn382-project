@@ -1,6 +1,7 @@
 import sqlite3
-from typing import Dict, Any
+from typing import Dict, Any, List
 from datetime import datetime, timedelta
+from model.database import Database
 
 class Rental:
     def rent_book(self, conn: sqlite3.Connection, student_id: int, book_id: int) -> Dict[str, Any]:
