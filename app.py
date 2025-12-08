@@ -220,7 +220,7 @@ def admin_login():
             return redirect(url_for("admin_dashboard"))
         else:
             flash("Invalid credentials", "danger")
-    return redirect(url_for("admin/login.html"))
+    return render_template("admin/login.html")
 
 
 @app.route("/admin/logout")
