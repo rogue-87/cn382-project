@@ -157,9 +157,7 @@ def student_books():
     books = book_model.search_available(Database().connect(), query)
     ##conn.close()
 
-    return render_template(
-        "student/books.html", books=books, search_query=query
-    )
+    return render_template("student/books.html", books=books, search_query=query)
 
 
 @app.route("/student/rent/<int:book_id>", methods=["POST"])
@@ -219,10 +217,10 @@ def admin_login():
         if username == ADMIN_NAME and password == ADMIN_PASSWORD:
             session["is_admin"] = True
             flash("Logged in as Admin!", "success")
-            return render_template("admin/dashboard.html")
+            return redirect(url_for("admin_dashboard"))
         else:
             flash("Invalid credentials", "danger")
-    return render_template("admin/login.html")
+    return redirect(url_for("admin/login.html"))
 
 
 @app.route("/admin/logout")
