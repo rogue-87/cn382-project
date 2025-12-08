@@ -11,7 +11,7 @@ class Book:
         Only returns books that are not currently rented out.
         """
         try:
-            cur = connection.cursor()
+            cursor = connection.cursor()
             sql_query = """
                 SELECT b.id, b.title, b.author, b.description, b.publishDate, b.isbn, b.quantity
                 FROM book b
@@ -21,8 +21,8 @@ class Book:
                 )
             """
             search_term = f"%{query}%"
-            cur.execute(sql_query, (search_term, search_term))
-            rows = cur.fetchall()
+            cursor.execute(sql_query, (search_term, search_term))
+            rows = cursor.fetchall()
 
             books = []
             for row in rows:

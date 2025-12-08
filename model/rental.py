@@ -86,15 +86,15 @@ class Rental:
         Get all rentals with student and book info.
         """
         try:
-            cur = connection.cursor()
-            cur.execute("""
+            cursor = connection.cursor()
+            cursor.execute("""
                 SELECT r.id, s.name, b.title, r.rental_start, r.rental_end, r.is_returned
                 FROM rental r
                 JOIN student s ON r.student_id = s.id
                 JOIN book b ON r.book_id = b.id
                 ORDER BY r.rental_start DESC
             """)
-            rows = cur.fetchall()
+            rows = cursor.fetchall()
 
             rentals = []
             for row in rows:
@@ -119,9 +119,9 @@ class Rental:
         Mark a rental as returned.
         """
         try:
-            cur = connection.cursor()
-            cur.execute("UPDATE rental SET is_returned = 1 WHERE id = ?", (rental_id,))
-            if cur.rowcount == 0:
+            cursor = connection.cursor()
+            cursor.execute("UPDATE rental SET is_returned = 1 WHERE id = ?", (rental_id,))
+            if cursor.rowcount == 0:
                 return {"status": False, "message": "Rental not found."}
             connection.commit()
             return {"status": True, "message": "Book returned successfully."}

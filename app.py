@@ -124,13 +124,13 @@ def student_dashboard():
     )
 
     # Re-fetch suspension status after check_notifications might have updated it
-    conn = Database().connect()
-    cur = conn.cursor()
-    cur.execute("SELECT isSuspended FROM student WHERE id = ?", (user_id,))
-    res = cur.fetchone()
+    connection = Database().connect()
+    cursor = connection.cursor()
+    cursor.execute("SELECT isSuspended FROM student WHERE id = ?", (user_id,))
+    res = cursor.fetchone()
     if res:
         session["is_suspended"] = res[0]
-    conn.close()
+    connection.close()
 
     # Get Current Rentals
     my_rentals = rental_model.get_student_rentals(Database().connect(), user_id)
