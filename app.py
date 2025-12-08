@@ -56,6 +56,16 @@ def home():
 
 
 # --- Student Routes ---
+def check_account_credentials(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_id" not in session:
+            return redirect(url_for("home"))
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
 @app.route("/student/register", methods=["GET", "POST"])
 def student_register():
     if request.method == "POST":
@@ -63,11 +73,9 @@ def student_register():
         email = request.form.get("email")
         password = request.form.get("password")
 
-        ##conn = db.connect()
         result = student_model.create_account(
             Database().connect(), name, email, password
         )
-        ##conn.close()
 
         if result["status"]:
             flash("Account created! Please log in.", "success")
@@ -107,12 +115,9 @@ def student_logout():
 
 
 @app.route("/student/dashboard")
+@check_account_credentials
 def student_dashboard():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
     user_id = session["user_id"]
-    ##conn = db.connect()
 
     # Refresh suspension status
     # We can peek at key in student login or just query it simply
@@ -135,9 +140,6 @@ def student_dashboard():
     # Get Current Rentals
     my_rentals = rental_model.get_student_rentals(Database().connect(), user_id)
 
-    ##conn.close()
-    Database().connect().close()  ## optional just to test
-
     return render_template(
         "student/dashboard.html",
         user_name=session["user_name"],
@@ -148,39 +150,27 @@ def student_dashboard():
 
 
 @app.route("/student/books", methods=["GET"])
+@check_account_credentials
 def student_books():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
     query = request.args.get("q", "")
-    ##conn = db.connect()
     books = book_model.search_available(Database().connect(), query)
-    ##conn.close()
 
     return render_template("student/books.html", books=books, search_query=query)
 
 
 @app.route("/student/rent/<int:book_id>", methods=["POST"])
+@check_account_credentials
 def rent_book_route(book_id):
-    if "user_id" not in session:
-        return jsonify({"status": False, "message": "Not logged in"})
-
     user_id = session["user_id"]
-    ##conn = db.connect()
     result = rental_model.rent_book(Database().connect(), user_id, book_id)
-    ##conn.close()
 
     return jsonify(result)
 
 
 @app.route("/student/delete_account", methods=["POST"])
+@check_account_credentials
 def delete_my_account():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
-    # conn = db.connect()
     result = student_model.delete_account(Database().connect(), session["user_id"])
-    # conn.close()
 
     if result["status"]:
         session.clear()
