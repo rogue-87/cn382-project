@@ -242,9 +242,7 @@ def admin_dashboard():
 @admin_required
 def admin_books():
     books = admin_model.get_all_books()
-    return render_template(
-        "admin/book_list.html", books=books
-    )  # Changed template to book_list.html
+    return render_template("admin/books/list.html", books=books)
 
 
 @app.route("/admin/books/add", methods=["GET", "POST"])
@@ -263,7 +261,7 @@ def admin_add_book():
         else:
             flash(result["message"], "danger")
 
-    return render_template("admin/book_form.html", book=None)
+    return render_template("admin/books/form.html", book=None)
 
 
 @app.route("/admin/books/edit/<int:book_id>", methods=["GET", "POST"])
@@ -287,7 +285,7 @@ def admin_edit_book(book_id):
         else:
             flash(result["message"], "danger")
 
-    return render_template("admin/book_form.html", book=book)
+    return render_template("admin/books/form.html", book=book)
 
 
 @app.route("/admin/books/delete/<int:book_id>", methods=["POST"])
@@ -309,7 +307,7 @@ def admin_students():
     sort_by = request.args.get("sort_by", "id")
     sort_order = request.args.get("sort_order", "ASC")
     students = admin_model.search_students(query, sort_by, sort_order)
-    return render_template("admin/student_list.html", students=students)
+    return render_template("admin/students/list.html", students=students)
 
 
 @app.route("/admin/students/edit/<int:student_id>", methods=["GET", "POST"])
@@ -331,7 +329,7 @@ def admin_edit_student(student_id):
         else:
             flash(result["message"], "danger")
 
-    return render_template("admin/student_form.html", student=student)
+    return render_template("admin/students/form.html", student=student)
 
 
 @app.route("/admin/students/suspend/<int:student_id>", methods=["POST"])
@@ -363,7 +361,7 @@ def admin_delete_student(student_id):
 @admin_required
 def admin_rentals():
     rentals = admin_model.get_all_rentals()
-    return render_template("admin/rental_list.html", rentals=rentals)
+    return render_template("admin/rentals/list.html", rentals=rentals)
 
 
 @app.route("/admin/rentals/return/<int:rental_id>", methods=["POST"])
