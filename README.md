@@ -111,6 +111,34 @@ these steps:
      .venv\Scripts\activate
      ```
 
+4. **Seed the database with sample data** (optional):
+   ```bash
+   python seed.py
+   ```
+
+5. **Set up environment variables**:
+   - Copy `example.env` to `.env`
+   - Set `ADMIN_NAME` and `ADMIN_PASSWORD` for admin login
+
+6. **Run the application**:
+   ```bash
+   python app.py
+   ```
+
+## Sample Data
+
+After running the seed script, you can use these credentials:
+
+### Admin Login
+- Username: Set `ADMIN_NAME` in your `.env` file
+- Password: Set `ADMIN_PASSWORD` in your `.env` file
+
+### Student Login
+- Email: alice@example.com
+- Password: password123
+
+Or any of the other seeded students.
+
 ## Coding Rules
 
 - Make use of the gradual typing system in python. It helps tools to give us
