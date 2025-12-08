@@ -12,11 +12,11 @@ through their student account.
 ### Student (task taken by Ahmed)
 
 - Account Management
-  - [ ] Creation
-  - [ ] Deletion
+  - [x] Creation
+  - [x] Deletion
 
-- [ ] Search for available books
-- [ ] Make rentals
+- [x] Search for available books
+- [x] Make rentals
 
 - Notification through the app
   - [ ] Notify for rental period (7 days)
@@ -26,20 +26,20 @@ through their student account.
 ### Admin (task taken by Ali)
 
 - Book Management
-  - [ ] Add book
+  - [x] Add book
   - [ ] Edit/Update book
-  - [ ] Delete book
+  - [x] Delete book
 
 - Student Management
-  - [ ] Search by name/id/email
-  - [ ] List that supports sorting (by name or id)
-  - [ ] Edit specific fields for the student (name, password)
-  - [ ] Suspend/Unsuspend student accounts
-  - [ ] Delete student accounts
+  - [x] Search by name/id/email
+  - [x] List that supports sorting (by name or id)
+  - [x] Edit specific fields for the student (name, password)
+  - [x] Suspend/Unsuspend student accounts
+  - [x] Delete student accounts
 
 ### Miscellaneous Features
 
-- [ ] Password hashing
+- [x] Password hashing
 
 ## Entities
 
