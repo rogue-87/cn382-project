@@ -139,7 +139,7 @@ def student_dashboard():
     Database().connect().close()  ## optional just to test
 
     return render_template(
-        "student_components/student_dashboard.html",
+        "components/student/dashboard.html",
         user_name=session["user_name"],
         notifications=notifications,
         rentals=my_rentals,
@@ -158,7 +158,7 @@ def student_books():
     ##conn.close()
 
     return render_template(
-        "student_components/student_books.html", books=books, search_query=query
+        "components/student/books.html", books=books, search_query=query
     )
 
 
@@ -190,7 +190,7 @@ def delete_my_account():
         return redirect(url_for("home"))
     else:
         flash(result["message"], "danger")
-        return redirect(url_for("student_components/student_dashboard"))
+        return redirect(url_for("components/student/dashboard.html"))
 
 
 # --- Admin Routes ---
