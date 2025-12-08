@@ -4,7 +4,9 @@ from werkzeug.security import check_password_hash
 
 
 class Authentication:
-    def login(self, connection: sqlite3.Connection, data: Dict[str, str]) -> Dict[str, Any]:
+    def login(
+        self, connection: sqlite3.Connection, data: Dict[str, str]
+    ) -> Dict[str, Any]:
         """
         Authenticates a student using email and password.
         Expected data: {'email': '...', 'password': '...'}

@@ -11,7 +11,9 @@ class Rental:
             cursor = connection.cursor()
 
             # 1. Check if student exists and is not suspended
-            cursor.execute("SELECT isSuspended FROM student WHERE id = ?", (student_id,))
+            cursor.execute(
+                "SELECT isSuspended FROM student WHERE id = ?", (student_id,)
+            )
             student = cursor.fetchone()
             if not student:
                 return {"status": False, "message": "Student not found."}
@@ -53,8 +55,10 @@ class Rental:
             connection.rollback()
             return {"status": False, "message": f"Error renting book: {str(e)}"}
 
-    def get_student_rentals(self, conn: sqlite3.Connection, student_id: int) -> list:
-        cursor = conn.cursor()
+    def get_student_rentals(
+        self, connection: sqlite3.Connection, student_id: int
+    ) -> list:
+        cursor = connection.cursor()
         cursor.execute(
             """
             SELECT b.title, r.rental_end, r.rental_start
@@ -108,7 +112,9 @@ class Rental:
         except Exception:
             return []
 
-    def return_book(self, connection: sqlite3.Connection, rental_id: int) -> Dict[str, Any]:
+    def return_book(
+        self, connection: sqlite3.Connection, rental_id: int
+    ) -> Dict[str, Any]:
         """
         Mark a rental as returned.
         """

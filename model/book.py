@@ -125,7 +125,9 @@ class Book:
         except Exception as e:
             return {"status": False, "message": f"Error updating book: {str(e)}"}
 
-    def delete_book(self, connection: sqlite3.Connection, book_id: int) -> Dict[str, Any]:
+    def delete_book(
+        self, connection: sqlite3.Connection, book_id: int
+    ) -> Dict[str, Any]:
         """
         Delete a book.
         """
