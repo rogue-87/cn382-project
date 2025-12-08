@@ -68,7 +68,13 @@ class Rental:
 
         my_rentals = []
         for r in rentals:
-            my_rentals.append({"title": r[0], "due_date": r[1], "start_date": r[2]})
+            my_rentals.append(
+                {
+                    "title": r[0],
+                    "due_date": datetime.strptime(r[1], "%Y-%m-%d").date(),
+                    "start_date": datetime.strptime(r[2], "%Y-%m-%d").date(),
+                }
+            )
         return my_rentals
 
     def get_all_rentals(self, connection: sqlite3.Connection) -> List[Dict[str, Any]]:
