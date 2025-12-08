@@ -75,7 +75,7 @@ def student_register():
         else:
             flash(result["message"], "danger")
 
-    return render_template("register.html")
+    return render_template("student/register.html")
 
 
 @app.route("/student/login", methods=["GET", "POST"])
@@ -97,7 +97,7 @@ def student_login():
         else:
             flash(result["message"], "danger")
 
-    return render_template("login.html")
+    return render_template("student/login.html")
 
 
 @app.route("/student/logout")
