@@ -1,6 +1,8 @@
 import sqlite3
 from typing import List, Dict, Any, Optional
 
+from lib.response import Response, Status
+
 
 class Book:
     def search_available(
@@ -11,7 +13,7 @@ class Book:
         Only returns books that are not currently rented out.
         """
         try:
-            cur = connection.cursor()
+            cursor = connection.cursor()
             sql_query = """
                 SELECT b.id, b.title, b.author, b.description, b.publishDate, b.isbn, b.quantity
                 FROM book b
@@ -21,8 +23,8 @@ class Book:
                 )
             """
             search_term = f"%{query}%"
-            cur.execute(sql_query, (search_term, search_term))
-            rows = cur.fetchall()
+            cursor.execute(sql_query, (search_term, search_term))
+            rows = cursor.fetchall()
 
             books = []
             for row in rows:
@@ -85,7 +87,7 @@ class Book:
         author: str,
         isbn: str,
         quantity: int,
-    ) -> Dict[str, Any]:
+    ) -> Response:
         """
         Add a new book.
         """
@@ -96,9 +98,9 @@ class Book:
                 (title, author, isbn, quantity),
             )
             connection.commit()
-            return {"status": True, "message": "Book added successfully."}
+            return Response(Status.SUCCESS, "Book added successfully.")
         except Exception as e:
-            return {"status": False, "message": f"Error adding book: {str(e)}"}
+            return Response(Status.FAIL, f"Error adding book: {str(e)}")
 
     def update_book(
         self,
@@ -108,7 +110,7 @@ class Book:
         author: str,
         isbn: str,
         quantity: int,
-    ) -> Dict[str, Any]:
+    ) -> Response:
         """
         Update an existing book.
         """
@@ -119,13 +121,13 @@ class Book:
                 (title, author, isbn, quantity, book_id),
             )
             if cursor.rowcount == 0:
-                return {"status": False, "message": "Book not found."}
+                return Response(Status.FAIL, "Book not found.")
             connection.commit()
-            return {"status": True, "message": "Book updated successfully."}
+            return Response(Status.SUCCESS, "Book updated successfully.")
         except Exception as e:
-            return {"status": False, "message": f"Error updating book: {str(e)}"}
+            return Response(Status.SUCCESS, f"Error updating book: {str(e)}")
 
-    def delete_book(self, connection: sqlite3.Connection, book_id: int) -> Dict[str, Any]:
+    def delete_book(self, connection: sqlite3.Connection, book_id: int) -> Response:
         """
         Delete a book.
         """
@@ -133,11 +135,12 @@ class Book:
             cursor = connection.cursor()
             cursor.execute("DELETE FROM book WHERE id = ?", (book_id,))
             if cursor.rowcount == 0:
-                return {"status": False, "message": "Book not found."}
+                return Response(Status.FAIL, "Book not found.")
             connection.commit()
-            return {"status": True, "message": "Book deleted successfully."}
+            return Response(Status.SUCCESS, "Book deleted successfully.")
+
         except Exception as e:
-            return {"status": False, "message": f"Error deleting book: {str(e)}"}
+            return Response(Status.FAIL, f"Error deleting book: {str(e)}")
 
     def get_book_by_id(
         self, connection: sqlite3.Connection, book_id: int

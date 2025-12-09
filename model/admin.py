@@ -73,13 +73,17 @@ class Admin:
 
     def search_students(self, query="", sort_by="id", sort_order="ASC"):
         connection = self.db.connect()
-        students = self.student_model.search_students(connection, query, sort_by, sort_order)
+        students = self.student_model.search_students(
+            connection, query, sort_by, sort_order
+        )
         connection.close()
         return students
 
     def update_student(self, student_id, name=None, password=None):
         connection = self.db.connect()
-        result = self.student_model.update_student(connection, student_id, name, password)
+        result = self.student_model.update_student(
+            connection, student_id, name, password
+        )
         connection.close()
         return result
 

@@ -1,14 +1,11 @@
 import sqlite3
-from typing import Dict, Any
+from typing import Dict
 from werkzeug.security import check_password_hash
+from lib.response import Response, Status
 
 
 class Authentication:
-    def login(self, connection: sqlite3.Connection, data: Dict[str, str]) -> Dict[str, Any]:
-        """
-        Authenticates a student using email and password.
-        Expected data: {'email': '...', 'password': '...'}
-        """
+    def login(self, connection: sqlite3.Connection, data: Dict[str, str]) -> Response:
         try:
             cursor = connection.cursor()
             cursor.execute(
@@ -24,9 +21,11 @@ class Authentication:
                     "email": user[2],
                     "isSuspended": user[4],
                 }
-                return {"status": True, "data": user_dict}
+                return Response(
+                    Status.SUCCESS, "Successfully authenticated!", user_dict
+                )
             else:
-                return {"status": False, "message": "Invalid email or password."}
+                return Response(Status.FAIL, "Invalid email or password.")
 
         except Exception as e:
-            return {"status": False, "message": f"Authentication error: {str(e)}"}
+            return Response(Status.FAIL, f"Authentication error: {str(e)}")
