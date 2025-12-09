@@ -5,11 +5,7 @@ from werkzeug.security import generate_password_hash
 
 class Student:
     def create_account(
-        self,
-        connection: sqlite3.Connection,
-        name: str,
-        email: str,
-        password: str = "1234",
+        self, connection: sqlite3.Connection, name: str, email: str, password: str
     ) -> Dict[str, Any]:
         try:
             cursor = connection.cursor()

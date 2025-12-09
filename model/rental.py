@@ -120,7 +120,9 @@ class Rental:
         """
         try:
             cursor = connection.cursor()
-            cursor.execute("UPDATE rental SET is_returned = 1 WHERE id = ?", (rental_id,))
+            cursor.execute(
+                "UPDATE rental SET is_returned = 1 WHERE id = ?", (rental_id,)
+            )
             if cursor.rowcount == 0:
                 return {"status": False, "message": "Rental not found."}
             connection.commit()
