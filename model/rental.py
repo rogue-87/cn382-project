@@ -1,12 +1,13 @@
 import sqlite3
 from typing import Dict, Any, List
 from datetime import datetime, timedelta
+from lib.response import Response, Status
 
 
 class Rental:
     def rent_book(
         self, connection: sqlite3.Connection, student_id: int, book_id: int
-    ) -> Dict[str, Any]:
+    ) -> Response:
         try:
             cursor = connection.cursor()
 
@@ -16,12 +17,9 @@ class Rental:
             )
             student = cursor.fetchone()
             if not student:
-                return {"status": False, "message": "Student not found."}
+                return Response(Status.FAIL, "Student not found.")
             if student[0]:  # isSuspended is True
-                return {
-                    "status": False,
-                    "message": "Account is suspended. Cannot rent books.",
-                }
+                return Response(Status.FAIL, "Account is suspended. Cannot rent books.")
 
             # 2. Check if book is available
             cursor.execute(
@@ -29,7 +27,7 @@ class Rental:
                 (book_id,),
             )
             if cursor.fetchone():
-                return {"status": False, "message": "Book is currently rented out."}
+                return Response(Status.FAIL, "Book is currently rented out.")
 
             # 3. Create Rental (7 days)
             start_date = datetime.now()
@@ -45,15 +43,13 @@ class Rental:
             )
 
             connection.commit()
-            return {
-                "status": True,
-                "message": "Book rented successfully.",
-                "due_date": end_date.date(),
-            }
+            return Response(
+                Status.SUCCESS, "Book rented successfully.", end_date.date()
+            )
 
         except Exception as e:
             connection.rollback()
-            return {"status": False, "message": f"Error renting book: {str(e)}"}
+            return Response(Status.FAIL, f"Error renting book: {str(e)}")
 
     def get_student_rentals(
         self, connection: sqlite3.Connection, student_id: int
@@ -112,9 +108,7 @@ class Rental:
         except Exception:
             return []
 
-    def return_book(
-        self, connection: sqlite3.Connection, rental_id: int
-    ) -> Dict[str, Any]:
+    def return_book(self, connection: sqlite3.Connection, rental_id: int) -> Response:
         """
         Mark a rental as returned.
         """
@@ -124,8 +118,8 @@ class Rental:
                 "UPDATE rental SET is_returned = 1 WHERE id = ?", (rental_id,)
             )
             if cursor.rowcount == 0:
-                return {"status": False, "message": "Rental not found."}
+                return Response(Status.FAIL, "Rental not found.")
             connection.commit()
-            return {"status": True, "message": "Book returned successfully."}
+            return Response(Status.SUCCESS, "Book returned successfully.")
         except Exception as e:
-            return {"status": False, "message": f"Error returning book: {str(e)}"}
+            return Response(Status.FAIL, f"Error returning book: {str(e)}")

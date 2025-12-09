@@ -14,6 +14,7 @@ from functools import wraps
 import os
 
 # Import refactored models
+from lib.response import Status
 from model.database import Database
 from model.student import Student
 from model.authentication import Authentication
@@ -73,15 +74,16 @@ def student_register():
         email = request.form.get("email")
         password = request.form.get("password")
 
-        result = student_model.create_account(
-            Database().connect(), name, email, password
-        )
+        if name is not None and email is not None and password is not None:
+            result = student_model.create_account(
+                Database().connect(), name, email, password
+            )
 
-        if result["status"]:
-            flash("Account created! Please log in.", "success")
-            return redirect(url_for("student_login"))
-        else:
-            flash(result["message"], "danger")
+            if result.status == Status.SUCCESS:
+                flash("Account created! Please log in.", "success")
+                return redirect(url_for("student_login"))
+            else:
+                flash(result.message, "danger")
 
     return render_template("student/register.html")
 
@@ -92,18 +94,19 @@ def student_login():
         email = request.form.get("email")
         password = request.form.get("password")
 
-        result = auth_model.login(
-            Database().connect(), {"email": email, "password": password}
-        )
+        if email is not None and password is not None:
+            result = auth_model.login(
+                Database().connect(), {"email": email, "password": password}
+            )
 
-        if result["status"]:
-            user_data = result["data"]
-            session["user_id"] = user_data["id"]
-            session["user_name"] = user_data["name"]
-            session["is_suspended"] = user_data["isSuspended"]
-            return redirect(url_for("student_dashboard"))
-        else:
-            flash(result["message"], "danger")
+            if result.status == Status.SUCCESS and result.data is not None:
+                user_data = result.data
+                session["user_id"] = user_data["id"]
+                session["user_name"] = user_data["name"]
+                session["is_suspended"] = user_data["isSuspended"]
+                return redirect(url_for("student_dashboard"))
+            else:
+                flash(result.message, "danger")
 
     return render_template("student/login.html")
 
@@ -164,7 +167,7 @@ def rent_book_route(book_id):
     user_id = session["user_id"]
     result = rental_model.rent_book(Database().connect(), user_id, book_id)
 
-    return jsonify(result)
+    return jsonify(result.to_dict())
 
 
 @app.route("/student/delete_account", methods=["POST"])
@@ -172,12 +175,12 @@ def rent_book_route(book_id):
 def delete_my_account():
     result = student_model.delete_account(Database().connect(), session["user_id"])
 
-    if result["status"]:
+    if result.status == Status.SUCCESS:
         session.clear()
         flash("Account deleted.", "info")
         return redirect(url_for("home"))
     else:
-        flash(result["message"], "danger")
+        flash(result.message, "danger")
         return redirect(url_for("student/dashboard.html"))
 
 
@@ -245,11 +248,11 @@ def admin_add_book():
         quantity = int(request.form.get("quantity"))
 
         result = admin_model.add_book(title, author, isbn, quantity)
-        if result["status"]:
+        if result.status == Status.SUCCESS:
             flash("Book added successfully!", "success")
             return redirect(url_for("admin_books"))
         else:
-            flash(result["message"], "danger")
+            flash(result.message, "danger")
 
     return render_template("admin/books/form.html", book=None)
 
@@ -269,11 +272,11 @@ def admin_edit_book(book_id):
         quantity = int(request.form.get("quantity"))
 
         result = admin_model.update_book(book_id, title, author, isbn, quantity)
-        if result["status"]:
+        if result.status == Status.SUCCESS:
             flash("Book updated successfully!", "success")
             return redirect(url_for("admin_books"))
         else:
-            flash(result["message"], "danger")
+            flash(result.message, "danger")
 
     return render_template("admin/books/form.html", book=book)
 
@@ -282,10 +285,10 @@ def admin_edit_book(book_id):
 @admin_required
 def admin_delete_book(book_id):
     result = admin_model.delete_book(book_id)
-    if result["status"]:
+    if result.status == Status.SUCCESS:
         flash("Book deleted successfully!", "success")
     else:
-        flash(result["message"], "danger")
+        flash(result.message, "danger")
     return redirect(url_for("admin_books"))
 
 
@@ -313,11 +316,11 @@ def admin_edit_student(student_id):
         email = request.form.get("email")
         password = request.form.get("password")
         result = admin_model.update_student(student_id, name, password)
-        if result["status"]:
+        if result.status == Status.SUCCESS:
             flash("Student updated successfully!", "success")
             return redirect(url_for("admin_students"))
         else:
-            flash(result["message"], "danger")
+            flash(result.message, "danger")
 
     return render_template("admin/students/form.html", student=student)
 
@@ -327,11 +330,11 @@ def admin_edit_student(student_id):
 def admin_suspend_student(student_id):
     suspend = request.form.get("suspend") == "1"
     result = admin_model.update_student_suspension(student_id, suspend)
-    if result["status"]:
+    if result.status == Status.SUCCESS:
         status = "suspended" if suspend else "unsuspended"
         flash(f"Student {status} successfully!", "success")
     else:
-        flash(result["message"], "danger")
+        flash(result.message, "danger")
     return redirect(url_for("admin_students"))
 
 
@@ -339,10 +342,10 @@ def admin_suspend_student(student_id):
 @admin_required
 def admin_delete_student(student_id):
     result = admin_model.delete_student(student_id)
-    if result["status"]:
+    if result.status == Status.SUCCESS:
         flash("Student deleted successfully!", "success")
     else:
-        flash(result["message"], "danger")
+        flash(result.message, "danger")
     return redirect(url_for("admin_students"))
 
 
@@ -358,10 +361,10 @@ def admin_rentals():
 @admin_required
 def admin_return_book(rental_id):
     result = admin_model.return_book(rental_id)
-    if result["status"]:
+    if result.status == Status.SUCCESS:
         flash("Book returned successfully!", "success")
     else:
-        flash(result["message"], "danger")
+        flash(result.message, "danger")
     return redirect(url_for("admin_rentals"))
 
 

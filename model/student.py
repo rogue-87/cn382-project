@@ -1,12 +1,13 @@
 import sqlite3
 from typing import Dict, Any, List, Optional
 from werkzeug.security import generate_password_hash
+from lib.response import Response, Status
 
 
 class Student:
     def create_account(
         self, connection: sqlite3.Connection, name: str, email: str, password: str
-    ) -> Dict[str, Any]:
+    ) -> Response:
         try:
             cursor = connection.cursor()
             hashed_password = generate_password_hash(password)
@@ -15,31 +16,26 @@ class Student:
                 (name, email, hashed_password, False),
             )
             connection.commit()
-            return {"status": True, "message": "Student account created successfully."}
+            return Response(Status.SUCCESS, "Student account created successfully.")
         except sqlite3.IntegrityError:
-            return {"status": False, "message": "Email already exists."}
+            return Response(Status.FAIL, "Email already exists.")
         except Exception as e:
-            return {"status": False, "message": f"Error creating account: {str(e)}"}
-
-    ## remove login
+            return Response(Status.FAIL, f"Error creating account: {str(e)}")
 
     def delete_account(
         self, connection: sqlite3.Connection, student_id: int
-    ) -> Dict[str, Any]:
+    ) -> Response:
         try:
             cursor = connection.cursor()
             cursor.execute("DELETE FROM student WHERE id = ?", (student_id,))
             if cursor.rowcount == 0:
-                return {"status": False, "message": "Student not found."}
+                return Response(Status.FAIL, "Student not found.")
             connection.commit()
-            return {"status": True, "message": "Student account deleted successfully."}
+            return Response(Status.SUCCESS, "Student account deleted successfully.")
         except Exception as e:
-            return {"status": False, "message": f"Error deleting account: {str(e)}"}
+            return Response(Status.FAIL, f"Error deleting account: {str(e)}")
 
     def get_all_students(self, connection: sqlite3.Connection) -> List[Dict[str, Any]]:
-        """
-        Get all students.
-        """
         try:
             cursor = connection.cursor()
             cursor.execute("SELECT id, name, email, isSuspended FROM student")
@@ -62,9 +58,6 @@ class Student:
     def get_student_by_id(
         self, connection: sqlite3.Connection, student_id: int
     ) -> Optional[Dict[str, Any]]:
-        """
-        Get a student by ID.
-        """
         try:
             cursor = connection.cursor()
             cursor.execute(
@@ -85,10 +78,7 @@ class Student:
 
     def update_suspension_status(
         self, connection: sqlite3.Connection, student_id: int, is_suspended: bool
-    ) -> Dict[str, Any]:
-        """
-        Update suspension status of a student.
-        """
+    ) -> Response:
         try:
             cursor = connection.cursor()
             cursor.execute(
@@ -96,14 +86,11 @@ class Student:
                 (is_suspended, student_id),
             )
             if cursor.rowcount == 0:
-                return {"status": False, "message": "Student not found."}
+                return Response(Status.FAIL, "Student not found.")
             connection.commit()
-            return {
-                "status": True,
-                "message": "Suspension status updated successfully.",
-            }
+            return Response(Status.SUCCESS, "Suspension status updated successfully.")
         except Exception as e:
-            return {"status": False, "message": f"Error updating suspension: {str(e)}"}
+            return Response(Status.FAIL, f"Error updating suspension: {str(e)}")
 
     def update_student(
         self,
@@ -111,10 +98,7 @@ class Student:
         student_id: int,
         name: Optional[str] = None,
         password: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        """
-        Update student name and/or password.
-        """
+    ) -> Response:
         try:
             cursor = connection.cursor()
             updates = []
@@ -127,16 +111,16 @@ class Student:
                 updates.append("password = ?")
                 params.append(hashed_password)
             if not updates:
-                return {"status": False, "message": "No fields to update."}
+                return Response(Status.FAIL, "No fields to update.")
             params.append(student_id)
             query = f"UPDATE student SET {', '.join(updates)} WHERE id = ?"
             cursor.execute(query, params)
             if cursor.rowcount == 0:
-                return {"status": False, "message": "Student not found."}
+                return Response(Status.FAIL, "Student not found.")
             connection.commit()
-            return {"status": True, "message": "Student updated successfully."}
+            return Response(Status.SUCCESS, "Student updated successfully.")
         except Exception as e:
-            return {"status": False, "message": f"Error updating student: {str(e)}"}
+            return Response(Status.FAIL, f"Error updating student: {str(e)}")
 
     def search_students(
         self,
