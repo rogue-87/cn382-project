@@ -19,15 +19,15 @@ through their student account.
 - [x] Make rentals
 
 - Notification through the app
-  - [ ] Notify for rental period (7 days)
-  - [ ] Give warning 3 days
-  - [ ] Account suspension
+  - [x] Notify for rental period (7 days)
+  - [x] Give warning 3 days
+  - [x] Account suspension
 
 ### Admin (task taken by Ali)
 
 - Book Management
   - [x] Add book
-  - [ ] Edit/Update book
+  - [x] Edit/Update book
   - [x] Delete book
 
 - Student Management
